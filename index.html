@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>1125悠闲小站</title>
+	<!-- <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script> -->
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<style type="text/css"> 
+	  *{ padding: 0; margin: 0; font-family: "微软雅黑" "microsoft yahei"; }
+	  body{ position: relative; background: url(img/bg_blue.png) repeat-x; }
+	  #container{ margin: 10px auto; padding: 6px; width: 1000px; background: #fff; border-radius: 10px; }
+	  #weather_iframe{ float: left; margin-top: 10px; border: solid 1px #9cc; }
+	  /*导航栏*/
+	  nav{ height: 45px; background: #369; border-radius: 10px; }
+	  .nav_item{ display: inline-block; position: relative; margin: 5px; height: 35px; }
+	  .nav_item_a, #nav_index{ display: inline-block; padding: 3px; height: 35px; font-size: 1.2em; text-decoration: none; }
+	  .nav_menu{ display: none; position: absolute; z-index: 1; padding: 5px 10px; width: 100px; background: #369; border: 1px solid #000; }
+	  .nav_menu_item{ display: block;
+	  	margin-bottom: 3px;
+	  	font-size: 1.2em;
+	  	text-decoration: none;
+	  }
+	  .nav_menu_item:link, .nav_menu_item:visited{
+	  	color: #fff;
+	  }
+	  .nav_menu_item:hover, .nav_menu_item:active{
+	  	color: #369;
+	  	background: #fff;
+	  }
+	  .nav_item_a:link, .nav_item_a:visited{
+	  	color: #fff;
+	  }
+	  .nav_item_a:hover, .nav_item_a:active, #nav_index{
+	  	color: #369;
+	  	background: #fff;
+	  	border-top-left-radius: 10px;
+	  	border-top-right-radius: 10px;
+	  }
+	  /*左右浮动*/
+	  #header_left, #nav_left, #section_left{
+	  	float: left;
+	  }
+	  #header_right, #nav_right, #section_right{
+	  	float: right;
+	  }
+	  /*消除浮动*/
+	 header:after, nav:after, section:after{
+	 	content: ".";
+	 	display: block;
+	 	visibility: hidden;
+	 	clear: both;
+	 }
+	 .list{
+	 	margin-bottom: 10px;
+	 	width: 250px;
+	 	overflow: hidden;
+	 	background: #9cc;
+	 	border: double #369;
+	 	border-top-left-radius: 10px;
+	 	border-top-right-radius: 10px;
+	 }
+	 .list_title{
+	 	padding: 2px;
+	 	font-size: 1.1em;
+	 	color: #fff;
+	 	background: #369;
+	 }
+	 .list_item{
+	 	padding: 3px;
+	 }
+	 #section_left{
+	 	width: 700px;
+	 }
+	 #notice{
+	 	height: 25px;
+	 	line-height: 25px;
+	 	background: #99CCCC;
+	 }
+	 #notice_title{
+	 	padding: 0 10px;
+	 	background: #09c;
+	 }
+	 #dy_img_line{
+	 	position: relative;
+	 }
+	 /*动态图片框*/
+	 #dy_img_frame{
+	 	position: relative;
+	 	margin: 10px 5px;
+	 	width: 500px;
+	 	height: 300px;
+	 	overflow: hidden;
+	 	border: double #369;
+	 	border-radius: 15px;
+	 }
+	 .dy_img{
+	 	display: none;
+	 }
+	 #dy_img_nav_base{
+	 	position: absolute;
+	 	right: 20px;
+	 	bottom: 5px;
+	 }
+	 .dy_img_nav{
+	 	padding: 2px 5px;
+	 	background: rgba(200, 200, 200, 0.5);
+	 	color: #fff;
+	 	font-size: 2em;
+	 	cursor: pointer;
+	 }
+	 #adv2{
+	 	position: absolute;
+	 	top: 0;
+	 	left: 530px;
+	 	width: 170px;
+	 	height: 300px;
+	 	overflow: hidden;
+	 	background: #eee;
+	 	border-radius: 10px;
+	 }
+	 /*精选区*/
+	.selection{
+		margin-bottom: 10px;
+		overflow: hidden;
+		width: 700px;
+		border: solid #369;
+		border-top-left-radius: 10px;
+		border-top-right-radius: 10px;
+	}
+	.selection_title{
+		background: #369;
+	}
+	/*精选区的标题*/
+	.selection_title a{
+		font-size: 1.2em;
+		color: #fff;
+	}
+	.selection_item{
+		padding: 5px;
+	}
+	</style>
+	<script type="text/javascript" charset="utf-8">
+		//nav菜单栏
+		function showMenu(node){
+			var menu = node.getElementsByClassName("nav_menu")[0];
+			menu.style.display = "block";
+		}
+		function hideMenu(node){
+			var menu = node.getElementsByClassName("nav_menu")[0];
+			menu.style.display = "none";
+		}
+		
+		//动态图片框架
+		var img_index = 1;
+		var dyimg_timer;
+		var time = 3000;
+		var imgs = document.getElementsByClassName('dy_img');
+		dyimg_timer = setInterval(function(){changeImg();img_index = (++img_index) % imgs.length;}, time);
+		function changeImg(){
+			for(var i = 0; i < imgs.length; i++){
+				imgs[i].style.display = "none";
+			}
+			imgs[img_index].style.display = "block";
+		}
+		function imgIndexInc(){
+			img_index = (++img_index) % imgs.length;
+			changeImg();
+		}
+		function imgIndexDec(){
+			img_index = (--img_index) >= 0 ? img_index : imgs.length - 1;
+			changeImg();
+		}
+	</script>
+</head>
+<body>
+<div id="container">
+  	<header>
+		<!-- logo -->
+  		<div style="margin-right: 35px;" id="header_left">
+  		  <a href="index.html"><img src="img/title.jpg" width="200px" height="100px" style="border: none;" /></a>
+  		</div>
+		<!-- 天气预报 -->
+		<iframe id="weather_iframe" allowtransparency="true" frameborder="0" width="385" height="96" scrolling="no" src="http://tianqi.2345.com/plugin/widget/index.htm?s=1&z=1&t=0&v=0&d=3&bd=0&k=&f=&q=1&e=1&a=1&c=54511&w=385&h=96&align=center"></iframe>
+		<!-- 广告 -->
+		<div style="float" id="adv">
+  		  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  		</div>
+  		<div id="header_right"></div>
+	</header>
+	<nav>
+		<div id="nav_left">
+			&nbsp;&nbsp;&nbsp;
+			<div class="nav_item">
+				<a id="nav_index" href="index.html">首页</a>
+			</div>
+			<div class="nav_item" onmousemove="showMenu(this)" onmouseout="hideMenu(this)">
+				<a class="nav_item_a" href="#">文字区</a>
+				<div class="nav_menu">
+					<a class="nav_menu_item" href="#">小小说</a>
+					<a class="nav_menu_item" href="#">杂文</a>
+					<a class="nav_menu_item" href="#">笑话</a>
+				</div>
+			</div>
+			<div class="nav_item" onmousemove="showMenu(this)" onmouseout="hideMenu(this)">
+				<a class="nav_item_a" href="#">图片区</a>
+				<div class="nav_menu">
+					<a class="nav_menu_item" href="#">静态图片</a>
+					<a class="nav_menu_item" href="#">动态图片</a>
+					<a class="nav_menu_item" href="#">新闻图片</a>
+				</div>				
+			</div>
+			<div class="nav_item" onmousemove="showMenu(this)" onmouseout="hideMenu(this)">
+				<a class="nav_item_a" href="#">视频区</a>
+				<div class="nav_menu">
+					<a class="nav_menu_item" href="#">搞笑视频</a>
+					<a class="nav_menu_item" href="#">教学视频</a>
+					<a class="nav_menu_item" href="#">新闻视频</a>
+				</div>
+			</div>
+		</div>
+		<div id="nav_right">
+			<div class="nav_item">
+				<a class="nav_item_a" href="#">空间</a>
+			</div>
+			<div class="nav_item">
+				<a class="nav_item_a" href="#">聊天室</a>
+			</div>
+			<div class="nav_item">
+				<a class="nav_item_a" href="#">论坛</a>
+			</div>
+			&nbsp;&nbsp;&nbsp;
+		</div>
+	</nav>
+	<br />
+	<section>
+		<div id="section_left">
+			<div id="notice">
+				<span id="notice_title">网站公告</span>
+				<span>请使用最新版本的浏览器浏览本网站, 如果是360浏览器请切换到极速模式, 谢谢合作!</span>
+			</div>
+			<div id="dy_img_line">
+				<!-- 动态变化图片 -->
+				<div id="dy_img_frame">
+					<div class="dy_img" style="display: block;">
+						<a href="#"><img src="img/index/200909081113144205.jpg" height="300px"/></a>
+					</div>
+					<div class="dy_img">
+						<a href="#"><img src="img/index/kdjd,20061230193227.jpg" height="300px"/></a>
+					</div>
+					<div class="dy_img">
+						<a href="#"><img src="img/index/pspysvskg3bz25.jpg" height="300px"/></a>
+					</div>
+					<div class="dy_img">
+						<a href="#"><img src="img/index/thumb_d_55473.jpg" height="300px"/></a>
+					</div>
+					<div class="dy_img">
+						<a href="#"><img src="img/index/u=955612621,688337791&fm=21&gp=0.jpg" height="300px"/></a>
+					</div>
+					<div id="dy_img_nav_base">
+						<span class="dy_img_nav" onclick="imgIndexDec()">&lt;</span>
+						<span class="dy_img_nav" onclick="imgIndexInc()">&gt;<span>
+					</div>
+				</div>
+				<!-- 广告 -->
+				<div id="adv2"></div>
+			</div>
+			
+			<!-- 精选区 -->
+			<div class="selection">
+			  <div class="selection_title">&nbsp;&nbsp;<a href="#">文字区精选</a></div>
+			  <div class="selection_item">
+			    <a href="#">99999999999999adsdasdasdasdasd999999</a><br /><a href="#">999994999999asdasdasd999999999</a><br /><a href="#">99999999234999999999999</a><br />
+			    <a href="#">99999999999999999sdsds999</a><br /><a href="#">999999999999999ewr2399999</a><br /><a href="#">99999999999923499999999</a><br />
+			    <a href="#">99999999999sdsdsd999999999</a><br /><a href="#">99999999999999999999</a><br /><a href="#">99999999999sdf992349999999</a><br />
+			    <a href="#">99999999999dsdsdsd999999999</a><br /><a href="#">9999999sdf99999999999sds99</a><br /><a href="#">99999999999999999999</a><br />
+			    <a href="#">999999999999sdsds99999999</a><br /><a href="#">99999999999999999999</a><br /><a href="#">99999999999999999999</a><br />
+			    <a href="#">999999999999dsdsds99999999</a><br /><a href="#">999999999999999342499999</a><br /><a href="#">99999999999923423423423423423423499999999</a><br />
+			  </div>
+			</div>
+			<div class="selection">
+			  <div class="selection_title">&nbsp;&nbsp;<a href="#">图片区精选</a></div>
+			  <div class="selection_item">
+				<a href="#"><img src="img/img_selection/k2.jpg" width="165px" height="165px" /></a>
+				<a href="#"><img src="img/img_selection/k2.jpg" width="165px" height="165px" /></a>
+				<a href="#"><img src="img/img_selection/k2.jpg" width="165px" height="165px" /></a>
+				<a href="#"><img src="img/img_selection/k2.jpg" width="165px" height="165px" /></a>
+				<a href="#"><img src="img/img_selection/k2.jpg" width="165px" height="165px" /></a>
+				<a href="#"><img src="img/img_selection/k2.jpg" width="165px" height="165px" /></a>
+				<a href="#"><img src="img/img_selection/k2.jpg" width="165px" height="165px" /></a>
+				<a href="#"><img src="img/img_selection/k2.jpg" width="165px" height="165px" /></a>
+			  </div>                                                
+			</div>
+			<div class="selection">
+			  <div class="selection_title">&nbsp;&nbsp;<a href="#">视频区精选</a></div>
+			  <div class="selection_item">
+			  	<span>
+			  		<a href="#">某标题123123123123</a><br />
+			  		<embed src="http://player.youku.com/player.php/sid/XNjE5NDk4MTAw/v.swf" wmode="transparent" allowFullScreen="true" quality="high" width="600" height="500" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>
+			  		<br />
+			  	</span>
+				<br />
+			  	<a href="#">某标题123123123123</a><br />
+			  	<a href="#">某标题123123123123</a><br />
+			  	<a href="#">某标题123123123123</a><br />
+			  	<a href="#">某标题123123123123</a><br />
+			  	<a href="#">某标题123123123123</a><br />
+			  </div>
+			</div>
+		</div>
+		<div id="section_right">
+		  <div class="list" id="ranking_list">
+		  	<div class="list_title">&nbsp;&nbsp;点击量排行榜</div>
+		  	<div class="list_item" id="ranking_list_item">
+		  		<a href="#">123123123123123123123</a><br />
+		  		<a href="#">123123123123123123123</a><br />
+		  		<a href="#">123123123123123123123</a><br />
+		  		<a href="#">123123123123123123123</a><br />
+		  		<a href="#">123123123123123123123</a><br />
+		  		<a href="#">123123123123123123123</a><br />
+		  		<a href="#">123123123123123123123</a><br />
+		  		<a href="#">123123123123123123123</a><br />
+		  		<a href="#">123123123123123123123</a><br />
+		  		<a href="#">123123123123123123123</a>
+		  	</div>
+		  </div>
+		  <div class="list" id="user_ranking_list">
+		  	<div class="list_title">&nbsp;&nbsp;用户排行榜</div>
+		  	<div class="list_item" id="user_ranking_list_item">
+		  		<a href="#">小明</a><br />
+		  		<a href="#">小明</a><br />
+		  		<a href="#">小明</a><br />
+		  		<a href="#">小明</a><br />
+		  		<a href="#">小明</a><br />
+		  		<a href="#">小明</a><br />
+		  		<a href="#">小明</a><br />
+		  		<a href="#">小明</a><br />
+		  		<a href="#">小明</a><br />
+		  		<a href="#">小明</a><br />
+		  	</div>
+		  </div>
+		</div>
+	</section>
+	<footer><hr /></footer>
+</div>
+</body>
+<script type="text/javascript" charset="utf-8">
+	//动态公告
+	var color_index = 0;
+	var colors = new Array("#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#00FFFF", "#FF00FF");
+	var notice_title = document.getElementById("notice_title");
+	setInterval(function(){
+		notice_title.style.color = colors[color_index];
+		color_index = (++color_index) % colors.length;
+	}, 350);
+	//动态图片框架
+	document.getElementById("dy_img_frame").onmouseover = function(){
+		clearInterval(dyimg_timer);
+	}
+	document.getElementById("dy_img_frame").onmouseout = function(){
+		dyimg_timer = setInterval(function(){changeImg();img_index = (++img_index) % imgs.length;}, time);
+	}
+	//检测登陆状态
+	$.post('controller/checkloginstatus.php', function(data){
+		$("#header_right").html(data);
+	});
+</script>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>注册</title>
+<style type="text/css">
+	/*背景变色动画*/
+	@keyframes 		   bg{form{background: #9cc;} to{background: #369;}}
+	@-webkit-keyframes bg{form{background: #9cc;} to{background: #369;}}
+	@-moz-keyframes    bg{form{background: #9cc;} to{background: #369;}}
+	@-o-keyframes 	   bg{form{background: #9cc;} to{background: #369;}}
+	/*注册面板动画*/
+	@keyframes 		   frame{0%{width: 0; height: 0;} 50%{width: 400px; height: 470px;} 100%{width: 350px; height: 420px;}}
+	@-webkit-keyframes frame{0%{width: 0; height: 0;} 50%{width: 400px; height: 470px;} 100%{width: 350px; height: 420px;}}
+	@-moz-keyframes    frame{0%{width: 0; height: 0;} 50%{width: 400px; height: 470px;} 100%{width: 350px; height: 420px;}}
+	@-o-keyframes 	   frame{0%{width: 0; height: 0;} 50%{width: 400px; height: 470px;} 100%{width: 350px; height: 420px;}}
+
+	*{padding: 0; margin: 0; font-family: "microsoft yahei";}
+	body{background: #9cc; 
+			animation: bg 5s ease 0 infinite alternate; -webkit-animation: bg 5s ease 0 infinite alternate; -moz-animation: bg 5s ease 0 infinite alternate; -o-animation: bg 5s ease 0 infinite alternate;}
+	#reg_farme{animation: frame 1s; -webkit-animation: frame 1s; -moz-animation: frame 1s; -o-animation: frame 1s;
+			padding: 10px; margin: 60px auto; width: 350px; height: 420px; overflow: hidden; background: #eee; border: 5px inset; border-radius: 10px;}
+	h2{color: #369; text-align: center; text-shadow: 3px 3px 3px #9cc;}
+	hr{margin: 10px auto;}
+	.reg_tip{color: #888; margin: 3px 0;}
+	.reg_err{margin-left: 8px; font-size: 0.9em;}
+	.reg_inp{padding: 0 10px; margin: 5px 0; width: 190px; height: 25px; font-size: 1.2em; 
+			border: 1px solid #9cc; border-radius: 10px;}
+	#checkcode{width: 60px; height: 30px; padding: 0 10px; margin: 5px 0; width: 60px; height: 30px;
+			font-size: 1.2em; border: 1px solid #9cc; border-radius: 10px;}
+	#submit{margin: 10px 5px; padding: 0 35px; height: 30px; color: #555;}
+	#reg_email_hint{display: none; position: absolute; z-index; 10; width: 210px; height: 150px; border: 1px solid #888; border-radius: 10px; background: #888; opacity: 0.9;}
+</style>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+</head>
+<body>
+	<div id="container">
+		<div id="reg_farme">
+			<h2>1125账号注册</h2><hr />
+			<form action="#" method="post" onsubmit="return checkSubmit()">
+				<p class="reg_tip">↓ 请输入用户名(3-15个字符)</p>
+				<input class="reg_inp" type="text" name="username" id="username" /><span class="reg_err" id="username_err"></span>
+				<p class="reg_tip">↓ 请输入密码(6个字符以上)</p>
+				<input class="reg_inp" type="password" name="password" id="password" /><span class="reg_err" id="password_err"></span>
+				<p class="reg_tip">↓ 请再次输入密码</p>
+				<input class="reg_inp" type="password" name="repassword" id="repassword" /><span class="reg_err" id="repassword_err"></span>
+				<p class="reg_tip">↓ 请输入邮箱地址</p>
+				<input class="reg_inp" type="text" name="email" id="email"  /><span class="reg_err" id="email_err"></span>
+				<div id="reg_email_hint">
+					<select style="width: 210px; height: 150px; size: 6;">
+						<option>123</option>
+						<option>123</option>
+						<option>123</option>
+						<option>123</option>
+					</select>
+				</div>
+				<p class="reg_tip">↓ 请输入验证码，大小写不限，点击图片换一张</p>
+				<input id="checkcode" type="text" name="checkcode" />&nbsp;&nbsp;
+				<img style="cursor: pointer;" align="center" alt="验证码" title="换一张" src="controller/CheckCode.php" onclick="this.src='controller/CheckCode.php?t=new Date().getTime()'" />
+				<span class="reg_err" id="checkcode_err"></span> &nbsp;&nbsp;<br />
+			  <input id="submit" type="submit" value="注册" />
+			</form>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+$("#username").focus();
+
+$("#email").keydown(function(){$("#reg_email_hint").show()});
+$("#email").blur(function(){$("#reg_email_hint").hide()});
+
+$("#username").blur(function(){checkUsername()});
+$("#password").blur(function(){checkPassword()});
+$("#repassword").blur(function(){checkRepassword()});
+$("#email").blur(function(){checkEmail()});
+$("#checkcode").blur(function(){checkCheckcode()});
+
+var arr = [false, false, false, false, false];
+function checkUsername(){
+	if($.trim($("#username").val()) == ''){
+		$("#username_err").html("用户名不能为空");
+		$("#username_err").css("color", "#f00");
+		arr[1] = false;
+	}
+	else{
+		$.post("controller/CheckRegister.php?mod=username", {"val" : $("#username").val()}, function(data){
+			if(data == 1){
+				$("#username_err").html("用户名可用");
+				$("#username_err").css("color", "#080");
+				arr[1] = true;
+			}
+			else if(data == -1){
+				$("#username_err").html("用户名不合法");
+				$("#username_err").css("color", "#f00");
+				arr[1] = false;
+			}
+			else if(data == -2){
+				$("#username_err").html("用户名含非法字符");
+				$("#username_err").css("color", "#f00");
+				arr[1] = false;
+			}
+			else if(data == -3){
+				$("#username_err").html("用户名已经存在");
+				$("#username_err").css("color", "#f00");
+				arr[1] = false;
+			}
+		});
+	}
+}
+function checkPassword(){
+	if($.trim($("#password").val()) == ''){
+		$("#password_err").html("密码不能为空");
+		$("#password_err").css("color", "#f00");
+		arr[2] = false;
+	}
+	else if(!/^\S{6,}$/.test($("#password").val())){
+		$("#password_err").html("密码格式错误");
+		$("#password_err").css("color", "#f00");
+		arr[2] = false;
+	}
+	else{
+		$("#password_err").html("密码可用");
+		$("#password_err").css("color", "#080");
+		arr[2] = true;
+	}
+}
+function checkRepassword(){
+	if(arr[2] && $("#password").val() == $("#repassword").val()){
+		$("#repassword_err").html("两次密码一致");
+		$("#repassword_err").css("color", "#080");
+		arr[3] = true;
+	}
+	else{
+		$("#repassword_err").html("两次密码不一致");
+		$("#repassword_err").css("color", "#f00");
+		arr[3] = false;
+	}
+}
+function checkEmail(){
+	if($.trim($("#email").val()) == ''){
+		$("#email_err").html("邮箱不能为空");
+		$("#email_err").css("color", "#f00");
+		arr[4] = false;
+	}
+	else{
+		$.post("controller/CheckRegister.php?mod=email", {"val" : $("#email").val()}, function(data){
+			if(data == 1){
+				$("#email_err").html("邮箱可用");
+				$("#email_err").css("color", "#080");
+				arr[4] = true;
+			}
+			else if(data == -4){
+				$("#email_err").html("邮箱格式有误");
+				$("#email_err").css("color", "#f00");
+				arr[4] = false;
+			}
+			else if(data == -5){
+				$("#email_err").html("邮箱不允许注册");
+				$("#email_err").css("color", "#f00");
+				arr[4] = false;
+			}
+			else if(data == -6){
+				$("#email_err").html("该邮箱已经被注册");
+				$("#email_err").css("color", "#f00");
+				arr[4] = false;
+			}
+		});
+	}
+}
+function checkCheckcode(){
+	if($.trim($("#checkcode").val()) == ''){
+		$("#checkcode_err").html("验证码不能为空");
+		$("#checkcode_err").css("color", "#f00");
+		arr[5] = false;
+	}
+	else{
+		$.post("controller/CheckRegister.php?mod=checkcode", {"val" : $("#checkcode").val()}, function(data){
+			if(data == 1){
+				$("#checkcode_err").html("验证码正确");
+				$("#checkcode_err").css("color", "#080");
+				arr[5] = true;
+			}
+			else{
+				$("#checkcode_err").html("验证码错误");
+				$("#checkcode_err").css("color", "#f00");
+				arr[5] = false;
+			}
+		});
+	}
+}
+function checkSubmit(){
+	for(var i = 0; i < arr.length; i++){
+		if(!arr[i]){
+			return false;
+		}
+	}
+	return true;
+}
+</script>
+</html>
